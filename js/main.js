@@ -3,7 +3,6 @@
    Matric 2024649372 -> Superhero Equipment Store + Service Estimator
    ========================================================== */
 
-// ---------- 1. PRICING DATA (must match the rules shown on kiosk.html) ----------
 const SERVICES = {
   cape:     { name: "Cape Repair & Re-stitching", price: 60 },
   gauntlet: { name: "Power Gauntlet Tune-Up",     price: 120 },
@@ -31,12 +30,10 @@ const EXTRAS = {
   warranty: { name: "30-day warranty",      price: 25 }
 };
 
-// ---------- 2. HELPER FUNCTIONS ----------
 function money(value) {
   return "RM " + value.toFixed(2);
 }
 
-// Stops user text from being treated as HTML
 function escapeHTML(text) {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;")
              .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -52,8 +49,6 @@ function clearErrors() {
   ids.forEach(function (id) { setError(id, ""); });
 }
 
-// ---------- 3. CLIENT-SIDE VALIDATION ----------
-// Returns an object with clean values if valid, or null if invalid.
 function validateForm() {
   clearErrors();
   let isValid = true;
@@ -65,7 +60,6 @@ function validateForm() {
   const conditionInput = document.querySelector('input[name="condition"]:checked');
   const urgency = document.getElementById("urgency").value;
 
-  // Name: required, at least 2 characters
   if (name === "") {
     setError("custNameError", "Hero name is required.");
     isValid = false;
@@ -74,7 +68,6 @@ function validateForm() {
     isValid = false;
   }
 
-  // Email: required + format check
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   if (email === "") {
     setError("custEmailError", "Email is required.");
@@ -84,13 +77,11 @@ function validateForm() {
     isValid = false;
   }
 
-  // Service type: must choose one
   if (service === "" || !SERVICES[service]) {
     setError("serviceTypeError", "Please choose a service type.");
     isValid = false;
   }
 
-  // Quantity: required, whole number, range 1 to 10
   const quantity = Number(quantityText);
   if (quantityText === "") {
     setError("quantityError", "Number of items is required.");
@@ -103,13 +94,11 @@ function validateForm() {
     isValid = false;
   }
 
-  // Condition: radio must be selected
   if (conditionInput === null) {
     setError("conditionError", "Please select the condition of the gear.");
     isValid = false;
   }
 
-  // Urgency: must choose one
   if (urgency === "" || !URGENCY[urgency]) {
     setError("urgencyError", "Please choose an urgency level.");
     isValid = false;
@@ -120,7 +109,6 @@ function validateForm() {
     return null;
   }
 
-  // Collect selected extras (checkboxes)
   const extras = [];
   document.querySelectorAll('input[name="extras"]:checked').forEach(function (box) {
     extras.push(box.value);
@@ -137,23 +125,18 @@ function validateForm() {
   };
 }
 
-// ---------- 4. CALCULATION + RESULT DISPLAY ----------
 function calculateEstimate(data) {
   const service = SERVICES[data.service];
   const condition = CONDITIONS[data.condition];
   const urgency = URGENCY[data.urgency];
 
-  // Step 1: base = price x quantity
   const base = service.price * data.quantity;
 
-  // Step 2: condition surcharge applies to base
   const conditionCharge = base * condition.rate;
   const subtotal = base + conditionCharge;
 
-  // Step 3: urgency surcharge applies to subtotal
   const urgencyCharge = subtotal * urgency.rate;
 
-  // Step 4: extras are flat fees
   let extrasTotal = 0;
   const extraNames = [];
   data.extras.forEach(function (key) {
@@ -190,13 +173,12 @@ function calculateEstimate(data) {
   resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-// ---------- 5. EVENT LISTENERS ----------
 const form = document.getElementById("estimateForm");
 
 if (form) {
   form.addEventListener("submit", function (event) {
-    event.preventDefault();               // stop the page from reloading
-    const data = validateForm();          // null means invalid -> stop here
+    event.preventDefault();               
+    const data = validateForm();          
     if (data === null) {
       document.getElementById("result").hidden = true;
       return;
